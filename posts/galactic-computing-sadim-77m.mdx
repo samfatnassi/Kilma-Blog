@@ -1,9 +1,9 @@
 ---
-title: 'Galactic Computing: How Kilma Labs is Reimagining the Milky Way with AI and 170 Million Stars'
+title: 'Galactic Computing: Mapping 170 Million Stars with AI'
 description: >-
-  Inside Project SADIM-77M — how Kilma Labs turned 1.8 billion Gaia DR3 stellar
-  records into a living computational map of the galaxy, and used a 77M-parameter
-  autoencoder to autonomously discover extreme cosmic anomalies.
+  Inside Project SADIM-77M, and how Kilma Labs turned 1.8 billion Gaia DR3
+  stellar records into a living computational map of the galaxy that discovers
+  extreme cosmic anomalies on its own.
 date: '2026-02-22'
 ---
 
@@ -23,17 +23,17 @@ Our team at Kilma Labs began by processing an initial dataset of over **1.8 bill
 
 To understand stellar dynamics, we structured the dataset around 13 fundamental astronomical features that capture astrometry, kinematics, and photometry:
 
-- **source_id** — The unique numerical identifier assigned by the Gaia DR3 mission.
-- **ra / dec** — Equatorial Coordinates (Right Ascension $\alpha$ and Declination $\delta$) mapping the star's position in the sky.
-- **l / b** — Galactic Coordinates (Longitude $l$ and Latitude $b$) relative to our galaxy's disk alignment.
-- **pmra / pmdec** — Proper Motion $(\mu_{\alpha*},\ \mu_{\delta})$, representing the angular velocity of the star across the sky, measured in milliarcseconds per year $(\mathrm{mas\ yr^{-1}})$.
-- **d_pc** — The calculated distance from Earth in Parsecs, derived from the inverse of the parallax:
+- **source_id**: The unique numerical identifier assigned by the Gaia DR3 mission.
+- **ra / dec**: Equatorial Coordinates (Right Ascension $\alpha$ and Declination $\delta$) mapping the star's position in the sky.
+- **l / b**: Galactic Coordinates (Longitude $l$ and Latitude $b$) relative to our galaxy's disk alignment.
+- **pmra / pmdec**: Proper Motion $(\mu_{\alpha*},\ \mu_{\delta})$, representing the angular velocity of the star across the sky, measured in milliarcseconds per year $(\mathrm{mas/yr})$.
+- **d_pc**: The calculated distance from Earth in Parsecs, derived from the inverse of the parallax:
 
 $$
 d\,[\mathrm{pc}] = \frac{1000}{\varpi\,[\mathrm{mas}]}
 $$
 
-- **x, y, z** — 3D Heliocentric Cartesian mapping, providing the star's position relative to our Sun:
+- **x, y, z**: 3D Heliocentric Cartesian mapping, providing the star's position relative to our Sun:
 
 $$
 \begin{aligned}
@@ -43,13 +43,13 @@ z &= d\sin b
 \end{aligned}
 $$
 
-- **abs_m** — Absolute Magnitude, which indicates the intrinsic, true brightness of the star:
+- **abs_m**: Absolute Magnitude, which indicates the intrinsic, true brightness of the star:
 
 $$
 M = m + 5 - 5\log_{10}\!\left(d\,[\mathrm{pc}]\right)
 $$
 
-- **bp_rp** — Color Index, which calculates the difference between the BP and RP light bands, serving as a primary indicator of the star's surface temperature:
+- **bp_rp**: Color Index, which calculates the difference between the BP and RP light bands, serving as a primary indicator of the star's surface temperature:
 
 $$
 \mathrm{BP-RP} = G_{\mathrm{BP}} - G_{\mathrm{RP}}
@@ -70,7 +70,7 @@ z &\sim q_\phi(z \mid x) = \mathcal{N}\!\left(\mu_\phi(x),\ \sigma^2_\phi(x)\rig
 \end{aligned}
 $$
 
-This vector acts as a unique *"Digital Fingerprint"* for the star, encapsulating its statistical essence. The model is trained by minimizing the standard variational objective — a reconstruction term plus a divergence term that regularizes the latent space:
+This vector acts as a unique *"Digital Fingerprint"* for the star, encapsulating its statistical essence. The model is trained by minimizing the standard variational objective, a reconstruction term plus a divergence term that regularizes the latent space:
 
 $$
 \begin{aligned}
@@ -81,23 +81,100 @@ $$
 
 By mapping stars in this high-dimensional space, the model achieves several core objectives:
 
-- **Galactic Archaeology** — It easily identifies stellar streams and ancient galactic structures by grouping similar digital fingerprints.
-- **Big Data Optimization** — It achieves a **99.9% reduction in query latency** compared to traditional methods.
-- **Scalability** — It provides a framework capable of real-time stellar analysis for future space surveys.
+- **Galactic Archaeology:** It easily identifies stellar streams and ancient galactic structures by grouping similar digital fingerprints.
+- **Big Data Optimization:** It achieves a **99.9% reduction in query latency** compared to traditional methods.
+- **Scalability:** It provides a framework capable of real-time stellar analysis for future space surveys.
 
 **Model Access:** The SADIM-77M model is available for fast inference, predicting missing stellar properties, and automating the classification of new astronomical data: [SADIM-77M on HuggingFace](https://huggingface.co/KilmaAI/Sadim-77M).
+
+## The Developer Experience: Traditional Python vs. SADIM-77M
+
+To truly understand the paradigm shift of "Galactic Computing," let's compare how a researcher would traditionally find a stellar anomaly versus how it is done using the SADIM-77M framework.
+
+### 1. The Traditional Way (Manual Computation)
+
+Historically, finding a hypervelocity star meant writing complex queries to download raw tabular data, applying manual physics formulas, and setting arbitrary thresholds.
+
+```python
+# Traditional: query + manual math
+from astroquery.gaia import Gaia
+import numpy as np
+
+# 1. Fetch raw rows via ADQL (slow)
+q = """
+ SELECT parallax, pmra, pmdec
+ FROM gaiadr3.gaia_source
+ WHERE source_id = 38655544960
+"""
+star = Gaia.launch_job(q).get_results()
+
+# 2. Manual physics
+d_pc = 1000 / star['parallax'][0]
+pm = np.hypot(star['pmra'][0],
+              star['pmdec'][0])
+v_tan = 4.74 * pm * d_pc / 1000
+
+# 3. Manual thresholding
+if v_tan > 600:
+    print("Hypervelocity!")
+else:
+    print("Normal star")
+```
+
+This approach works, but it is brittle. Every physical property has to be recomputed by hand, every threshold is an arbitrary human guess, and the whole pipeline only detects the specific anomaly you already thought to look for.
+
+### 2. The SADIM Way (Learned Representation)
+
+With SADIM-77M, the star is encoded into its latent fingerprint and the model reports how far that fingerprint sits from the cosmic norm. No manual formulas, no hand-tuned cutoffs.
+
+```python
+# SADIM: streaming + learned vectors
+from datasets import load_dataset
+from transformers import AutoModel
+
+# 1. Stream it (no full download)
+ds = load_dataset(
+    "samfatnassi/gaia-dr3",
+    split="train",
+    streaming=True)
+
+# 2. Load the foundation model
+model = AutoModel.from_pretrained(
+    "KilmaAI/Sadim-77M")
+
+# 3. Encode into a fingerprint
+star = next(iter(ds))
+z = model.encode(star)  # 512-dim
+
+print(star["source_id"], z.shape)
+```
+
+The 512-dimensional vector `z` is the whole point. Distance in that space is a *learned* measure of strangeness, so the same single representation supports anomaly ranking, nearest-neighbour searches for stellar streams, and property prediction for incomplete records.
+
+### 3. Side by Side
+
+| | Traditional | SADIM-77M |
+| --- | --- | --- |
+| **Data access** | Full download | Streaming |
+| **Physics** | Manual formulas | Learned |
+| **Thresholds** | Hand-tuned | Model-derived |
+| **Scope** | One anomaly type | Any outlier |
+| **Output** | Boolean flag | 512-dim vector |
+| **Scale** | Thousands | 170 million |
+
+The difference is not just convenience. The traditional script can only ever find what its author anticipated. The learned representation surfaces phenomena nobody wrote a rule for.
 
 ## Autonomous Discovery: The Extreme Anomalies Catalog
 
 The most powerful application of representing the universe in a neural vector space is **anomaly detection**. By analyzing the latent manifold, SADIM-77M can autonomously identify rare stellar phenomena that deviate from the cosmic norm.
 
-Using the AI engine, we scanned the galaxy and extracted the **SADIM Extreme Anomalies Catalog** — a curated dataset of **10,000 stellar outliers** detected from the Gaia DR3 catalog.
+Using the AI engine, we scanned the galaxy and extracted the **SADIM Extreme Anomalies Catalog**, a curated dataset of **10,000 stellar outliers** detected from the Gaia DR3 catalog.
 
 ### Dataset Specifications
 
-- **Precision** — Guaranteed 19-digit `source_id` for verified strings.
-- **Target** — The catalog isolates hyper-velocity stars, unresolved binary systems, and extreme kinematic anomalies.
-- **AI Metrics** — The anomalies are strictly ranked by two AI-specific calculations: **MSE Deviation** (Mean Squared Error) and **KL Surpass** (Kullback–Leibler Divergence), which measure how *"surprised"* the AI is by a star's physical behavior.
+- **Precision:** Guaranteed 19-digit `source_id` for verified strings.
+- **Target:** The catalog isolates hyper-velocity stars, unresolved binary systems, and extreme kinematic anomalies.
+- **AI Metrics:** The anomalies are strictly ranked by two AI-specific calculations, **MSE Deviation** (Mean Squared Error) and **KL Surpass** (Kullback-Leibler Divergence), which measure how *"surprised"* the AI is by a star's physical behavior.
 
 $$
 \mathrm{MSE} = \frac{1}{n}\sum_{i=1}^{n}\left(x_i - \hat{x}_i\right)^2
@@ -113,31 +190,31 @@ $$
 
 To bridge the gap between complex AI architecture and practical usability, we built the **SADIM Sky Explorer**, an interactive analytical tool designed for researchers and astronomy enthusiasts alike.
 
-This tool combines real-time data retrieval — powered by DuckDB and the ESA TAP API — with our SADIM-77M deep learning model. Users can input any valid Gaia DR3 `SOURCE_ID` (for example, try: `38655544960`) and click **"SCAN"**. The system instantly plots the star on an interactive deep-space map (via Aladin Lite) and generates a detailed diagnostic report.
+This tool combines real-time data retrieval, powered by DuckDB and the ESA TAP API, with our SADIM-77M deep learning model. Users can input any valid Gaia DR3 `SOURCE_ID` (for example, try: `38655544960`) and click **"SCAN"**. The system instantly plots the star on an interactive deep-space map (via Aladin Lite) and generates a detailed diagnostic report.
 
 ### Understanding the Scan Report
 
 The dashboard provides a blend of physical calculations and AI metrics:
 
-- **DIST_LY & PARALLAX** — The estimated distance in Light-Years and the apparent shift against the background, in $\mathrm{mas}$.
-- **VEL_KMS (TAN) & RADIAL_VEL** — Tangential and radial speeds in $\mathrm{km\,s^{-1}}$. The tangential velocity follows
+- **DIST_LY & PARALLAX:** The estimated distance in Light-Years and the apparent shift against the background, in $\mathrm{mas}$.
+- **VEL_KMS (TAN) & RADIAL_VEL:** Tangential and radial speeds in $\mathrm{km/s}$. The tangential velocity follows
 
 $$
 v_{\mathrm{tan}} = 4.74\,\mu\,[\mathrm{mas/yr}] \times d\,[\mathrm{kpc}]
 $$
 
-  Values exceeding $600\ \mathrm{km\,s^{-1}}$ may trigger a hypervelocity alert.
+  Values exceeding $600\ \mathrm{km/s}$ may trigger a hypervelocity alert.
 
-- **RUWE (ESA_API)** — Renormalised Unit Weight Error. A value near $1.0$ is normal; above $1.4$ suggests a poor fit, often indicating an unseen binary companion or noisy data.
-- **LOCAL_COUNT** — The number of neighboring stars within the target's immediate spatial cone.
-- **MSE_DEV & KL_SURP** — AI metrics indicating how much the star deviates from expected baselines, and how highly unusual its data distribution is.
+- **RUWE (ESA_API):** Renormalised Unit Weight Error. A value near $1.0$ is normal; above $1.4$ suggests a poor fit, often indicating an unseen binary companion or noisy data.
+- **LOCAL_COUNT:** The number of neighboring stars within the target's immediate spatial cone.
+- **MSE_DEV & KL_SURP:** AI metrics indicating how much the star deviates from expected baselines, and how highly unusual its data distribution is.
 
 Based on these metrics, the AI outputs a final `STATUS` classification:
 
-- **[NOMINAL (NORMAL)]** — Standard star.
-- **[DATA ARTIFACT: BAD ASTROMETRY (RUWE)]** — Likely a binary system or observation noise.
-- **[PHYSICAL ANOMALY: HYPERVELOCITY]** — Moving at extreme speeds.
-- **[AI GLOBAL ANOMALY]** — Flagged by the deep learning model due to highly unusual multidimensional patterns.
+- **[NOMINAL (NORMAL)]:** Standard star.
+- **[DATA ARTIFACT: BAD ASTROMETRY (RUWE)]:** Likely a binary system or observation noise.
+- **[PHYSICAL ANOMALY: HYPERVELOCITY]:** Moving at extreme speeds.
+- **[AI GLOBAL ANOMALY]:** Flagged by the deep learning model due to highly unusual multidimensional patterns.
 
 **Try the Explorer:** [Launch SADIM Sky Explorer](https://huggingface.co/spaces/KilmaAI/sadim-sky-explorer).
 

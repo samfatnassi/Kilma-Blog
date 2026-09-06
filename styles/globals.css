@@ -59,6 +59,22 @@
     .katex-display > .katex {
       font-size: 0.85em;
     }
+
+    .prose :where(pre) {
+      font-size: 0.66rem;
+      line-height: 1.6;
+      padding: 0.85rem 0.7rem;
+    }
+
+    .prose :where(table) {
+      font-size: 0.8rem;
+      display: block;
+      width: 100%;
+    }
+
+    .prose :where(th, td) {
+      padding: 0.4rem 0.55rem;
+    }
   }
 }
 
