@@ -1,0 +1,141 @@
+---
+title: 'Galactic Computing: How Kilma Labs is Reimagining the Milky Way with AI and 170 Million Stars'
+description: >-
+  Inside Project SADIM-77M — how Kilma Labs turned 1.8 billion Gaia DR3 stellar
+  records into a living computational map of the galaxy, and used a 77M-parameter
+  autoencoder to autonomously discover extreme cosmic anomalies.
+date: '2026-02-22'
+---
+
+At Kilma, our daily operations focus on delivering robust technological solutions. However, we believe that true innovation requires looking beyond immediate commercial applications. Through **Kilma Labs**, our dedicated research and development arm, we actively invest in pure scientific research and open-source initiatives. Our goal is to push the boundaries of big data and artificial intelligence, contributing to the global scientific community.
+
+Today, we are sharing our most ambitious research project to date: **Project SADIM-77M**. This initiative represents a paradigm shift in astronomical data processing, moving away from static archival searches toward dynamic *"Galactic Computing."* By applying deep learning to the European Space Agency's (ESA) Gaia Mission data, we have reimagined an archive of billions of data points as a living, computational digital map.
+
+Here is a detailed breakdown of the project pipeline, from filtering over a billion stars to autonomously discovering extreme cosmic anomalies.
+
+## The Data Foundation: Filtering the Gaia DR3 Archive
+
+The foundation of any robust AI model is high-quality data. The ESA Gaia Data Release 3 (DR3) is a monumental achievement in modern astronomy, but its sheer size makes it challenging to navigate.
+
+Our team at Kilma Labs began by processing an initial dataset of over **1.8 billion** stellar records. Through rigorous filtering for data quality and relevance, we extracted a high-fidelity, pre-processed core of **170 million stars**. This massive subset was specifically curated for large-scale galactic archaeology, 3D mapping, and training advanced machine learning frameworks.
+
+### The 13 Core Parameters
+
+To understand stellar dynamics, we structured the dataset around 13 fundamental astronomical features that capture astrometry, kinematics, and photometry:
+
+- **source_id** — The unique numerical identifier assigned by the Gaia DR3 mission.
+- **ra / dec** — Equatorial Coordinates (Right Ascension $\alpha$ and Declination $\delta$) mapping the star's position in the sky.
+- **l / b** — Galactic Coordinates (Longitude $l$ and Latitude $b$) relative to our galaxy's disk alignment.
+- **pmra / pmdec** — Proper Motion $(\mu_{\alpha*},\ \mu_{\delta})$, representing the angular velocity of the star across the sky, measured in milliarcseconds per year $(\mathrm{mas\ yr^{-1}})$.
+- **d_pc** — The calculated distance from Earth in Parsecs, derived from the inverse of the parallax:
+
+$$
+d\,[\mathrm{pc}] = \frac{1000}{\varpi\,[\mathrm{mas}]}
+$$
+
+- **x, y, z** — 3D Heliocentric Cartesian mapping, providing the star's position relative to our Sun:
+
+$$
+x = d\cos b\cos l,\qquad y = d\cos b\sin l,\qquad z = d\sin b
+$$
+
+- **abs_m** — Absolute Magnitude, which indicates the intrinsic, true brightness of the star:
+
+$$
+M = m + 5 - 5\log_{10}\!\left(d\,[\mathrm{pc}]\right)
+$$
+
+- **bp_rp** — Color Index, which calculates the difference between the BP and RP light bands, serving as a primary indicator of the star's surface temperature:
+
+$$
+\mathrm{BP-RP} = G_{\mathrm{BP}} - G_{\mathrm{RP}}
+$$
+
+**Open Access:** We have made this dataset publicly available. For researchers who need to perform deep-dive historical record querying or train their own custom neural networks, the dataset is accessible via Streaming Mode on HuggingFace: [Gaia-DR3: A Billion-Star Dataset](https://huggingface.co/datasets/samfatnassi/gaia-dr3).
+
+## The AI Engine: SADIM-77M (Stellar Intelligence Framework)
+
+Processing 170 million stars using traditional tabular database queries is both slow and computationally expensive. To solve this, we developed **SADIM-77M**, a specialized Foundation AI model trained entirely on our refined Gaia DR3 subset.
+
+SADIM (Stellar Intelligence Framework) utilizes a **Variational Autoencoder (VAE)** architecture equipped with **77 million parameters**. Instead of querying a traditional database, SADIM converts raw stellar metadata into a High-Dimensional Neural Vector Space. Every single celestial object is encoded into a **512-dimensional latent vector**:
+
+$$
+z \in \mathbb{R}^{512},\qquad z \sim q_\phi(z \mid x) = \mathcal{N}\!\left(\mu_\phi(x),\ \sigma^2_\phi(x)\right)
+$$
+
+This vector acts as a unique *"Digital Fingerprint"* for the star, encapsulating its statistical essence. The model is trained by minimizing the standard variational objective — a reconstruction term plus a divergence term that regularizes the latent space:
+
+$$
+\mathcal{L} = \underbrace{\mathbb{E}_{q_\phi(z\mid x)}\!\left[\lVert x - \hat{x}\rVert^2\right]}_{\text{reconstruction}} + \underbrace{D_{\mathrm{KL}}\!\left(q_\phi(z\mid x)\,\Vert\,p(z)\right)}_{\text{regularization}}
+$$
+
+By mapping stars in this high-dimensional space, the model achieves several core objectives:
+
+- **Galactic Archaeology** — It easily identifies stellar streams and ancient galactic structures by grouping similar digital fingerprints.
+- **Big Data Optimization** — It achieves a **99.9% reduction in query latency** compared to traditional methods.
+- **Scalability** — It provides a framework capable of real-time stellar analysis for future space surveys.
+
+**Model Access:** The SADIM-77M model is available for fast inference, predicting missing stellar properties, and automating the classification of new astronomical data: [SADIM-77M on HuggingFace](https://huggingface.co/KilmaAI/Sadim-77M).
+
+## Autonomous Discovery: The Extreme Anomalies Catalog
+
+The most powerful application of representing the universe in a neural vector space is **anomaly detection**. By analyzing the latent manifold, SADIM-77M can autonomously identify rare stellar phenomena that deviate from the cosmic norm.
+
+Using the AI engine, we scanned the galaxy and extracted the **SADIM Extreme Anomalies Catalog** — a curated dataset of **10,000 stellar outliers** detected from the Gaia DR3 catalog.
+
+### Dataset Specifications
+
+- **Precision** — Guaranteed 19-digit `source_id` for verified strings.
+- **Target** — The catalog isolates hyper-velocity stars, unresolved binary systems, and extreme kinematic anomalies.
+- **AI Metrics** — The anomalies are strictly ranked by two AI-specific calculations: **MSE Deviation** (Mean Squared Error) and **KL Surpass** (Kullback–Leibler Divergence), which measure how *"surprised"* the AI is by a star's physical behavior.
+
+$$
+\mathrm{MSE} = \frac{1}{n}\sum_{i=1}^{n}\left(x_i - \hat{x}_i\right)^2
+\qquad\qquad
+D_{\mathrm{KL}}(q \Vert p) = \sum_{i} q(i)\,\log\frac{q(i)}{p(i)}
+$$
+
+**Catalog Access:** [SADIM Extreme Anomalies Catalog](https://huggingface.co/datasets/samfatnassi/extreme-anomalies-catalog).
+
+## Interactive Exploration: SADIM Sky Explorer
+
+To bridge the gap between complex AI architecture and practical usability, we built the **SADIM Sky Explorer**, an interactive analytical tool designed for researchers and astronomy enthusiasts alike.
+
+This tool combines real-time data retrieval — powered by DuckDB and the ESA TAP API — with our SADIM-77M deep learning model. Users can input any valid Gaia DR3 `SOURCE_ID` (for example, try: `38655544960`) and click **"SCAN"**. The system instantly plots the star on an interactive deep-space map (via Aladin Lite) and generates a detailed diagnostic report.
+
+### Understanding the Scan Report
+
+The dashboard provides a blend of physical calculations and AI metrics:
+
+- **DIST_LY & PARALLAX** — The estimated distance in Light-Years and the apparent shift against the background, in $\mathrm{mas}$.
+- **VEL_KMS (TAN) & RADIAL_VEL** — Tangential and radial speeds in $\mathrm{km\,s^{-1}}$. The tangential velocity follows
+
+$$
+v_{\mathrm{tan}} = 4.74\;\mu\,[\mathrm{mas\ yr^{-1}}]\;\times\;d\,[\mathrm{kpc}]
+$$
+
+  Values exceeding $600\ \mathrm{km\,s^{-1}}$ may trigger a hypervelocity alert.
+
+- **RUWE (ESA_API)** — Renormalised Unit Weight Error. A value near $1.0$ is normal; above $1.4$ suggests a poor fit, often indicating an unseen binary companion or noisy data.
+- **LOCAL_COUNT** — The number of neighboring stars within the target's immediate spatial cone.
+- **MSE_DEV & KL_SURP** — AI metrics indicating how much the star deviates from expected baselines, and how highly unusual its data distribution is.
+
+Based on these metrics, the AI outputs a final `STATUS` classification:
+
+- **[NOMINAL (NORMAL)]** — Standard star.
+- **[DATA ARTIFACT: BAD ASTROMETRY (RUWE)]** — Likely a binary system or observation noise.
+- **[PHYSICAL ANOMALY: HYPERVELOCITY]** — Moving at extreme speeds.
+- **[AI GLOBAL ANOMALY]** — Flagged by the deep learning model due to highly unusual multidimensional patterns.
+
+**Try the Explorer:** [Launch SADIM Sky Explorer](https://huggingface.co/spaces/KilmaAI/sadim-sky-explorer).
+
+## Academic Publication and Open Science
+
+At Kilma Labs, we believe that the future of scientific discovery relies heavily on the neural representation of the universe. To document our methodology and formalize our findings, we have published a comprehensive research paper outlining the architecture of the SADIM-77M autoencoder and its capacity to "understand" galactic structures through high-dimensional inference.
+
+- **Paper Title:** *SADIM: A Pre-trained Foundation AI for Galactic Computing and Autonomous Discovery of Anomalous Stellar Phenomena in Gaia DR3*
+- **Author/Creator:** Houssem Fatnassi (Researcher)
+- **Read the full research here:** [Zenodo Record](https://doi.org/10.5281/zenodo.18727667)
+- **DOI:** `10.5281/zenodo.18727667`
+
+Project SADIM proves that modern data science techniques can transcend traditional software applications. By sharing this work, Kilma Labs remains committed to supporting the scientific community, demonstrating that the same big data principles used in enterprise technology can be harnessed to map the stars.
