@@ -70,18 +70,10 @@
     font-size: 0.85em;
   }
 
-  /* Wrap code instead of scrolling it, so nothing is cut off */
   .prose.prose :where(pre) {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     line-height: 1.6;
-    padding: 0.85rem 0.75rem;
-    white-space: pre-wrap;
-    overflow-wrap: break-word;
-    word-break: break-word;
-  }
-
-  .prose.prose :where(pre code) {
-    white-space: inherit;
+    padding: 0.9rem;
   }
 
   .prose.prose :where(table) {
@@ -93,4 +85,17 @@
   .prose.prose :where(th, td) {
     padding: 0.4rem 0.5rem;
   }
+}
+
+/* Inline SVG diagrams: scale to the column, never overflow */
+.diagram {
+  width: 100%;
+  max-width: 100%;
+  margin: 1.75rem 0;
+}
+
+.diagram svg {
+  display: block;
+  width: 100%;
+  height: auto;
 }

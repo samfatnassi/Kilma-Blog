@@ -87,71 +87,58 @@ By mapping stars in this high-dimensional space, the model achieves several core
 
 **Model Access:** The SADIM-77M model is available for fast inference, predicting missing stellar properties, and automating the classification of new astronomical data: [SADIM-77M on HuggingFace](https://huggingface.co/KilmaAI/Sadim-77M).
 
-## The Developer Experience: Traditional Python vs. SADIM-77M
+## Two Ways to Find a Strange Star
 
-To truly understand the paradigm shift of "Galactic Computing," let's compare how a researcher would traditionally find a stellar anomaly versus how it is done using the SADIM-77M framework.
+To understand what "Galactic Computing" actually changes, it helps to compare how a researcher would traditionally hunt for a stellar anomaly against how the same question is answered with SADIM-77M.
 
-### 1. The Traditional Way (Manual Computation)
+<figure className="diagram">
+<svg viewBox="0 0 420 348" role="img" aria-label="Comparison of the traditional stellar anomaly workflow and the SADIM-77M workflow" xmlns="http://www.w3.org/2000/svg" fontFamily="inherit">
+  <text x="105" y="22" textAnchor="middle" fontSize="14" fontWeight="700" fill="currentColor" opacity="0.65" letterSpacing="1.2">TRADITIONAL</text>
+  <text x="315" y="22" textAnchor="middle" fontSize="14" fontWeight="700" fill="#0353e9" letterSpacing="1.2">SADIM-77M</text>
+  <rect x="10" y="46" width="190" height="54" rx="10" fill="currentColor" fillOpacity="0.04" stroke="currentColor" strokeOpacity="0.28" strokeWidth="1.5" />
+  <text x="105" y="77" textAnchor="middle" fontSize="13" fill="currentColor">Download raw table</text>
+  <rect x="220" y="46" width="190" height="54" rx="10" fill="#0353e9" fillOpacity="0.07" stroke="#0353e9" strokeOpacity="1" strokeWidth="1.5" />
+  <text x="315" y="77" textAnchor="middle" fontSize="13" fill="currentColor">Stream the catalog</text>
+  <path d="M105 106 L105 120" stroke="currentColor" strokeOpacity="0.3" strokeWidth="1.5" />
+  <path d="M101 115 L105 120 L109 115" fill="none" stroke="currentColor" strokeOpacity="0.3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  <path d="M315 106 L315 120" stroke="#0353e9" strokeOpacity="0.9" strokeWidth="1.5" />
+  <path d="M311 115 L315 120 L319 115" fill="none" stroke="#0353e9" strokeOpacity="0.9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  <rect x="10" y="126" width="190" height="54" rx="10" fill="currentColor" fillOpacity="0.04" stroke="currentColor" strokeOpacity="0.28" strokeWidth="1.5" />
+  <text x="105" y="157" textAnchor="middle" fontSize="13" fill="currentColor">Apply physics by hand</text>
+  <rect x="220" y="126" width="190" height="54" rx="10" fill="#0353e9" fillOpacity="0.07" stroke="#0353e9" strokeOpacity="1" strokeWidth="1.5" />
+  <text x="315" y="157" textAnchor="middle" fontSize="13" fill="currentColor">Encode to 512-d vector</text>
+  <path d="M105 186 L105 200" stroke="currentColor" strokeOpacity="0.3" strokeWidth="1.5" />
+  <path d="M101 195 L105 200 L109 195" fill="none" stroke="currentColor" strokeOpacity="0.3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  <path d="M315 186 L315 200" stroke="#0353e9" strokeOpacity="0.9" strokeWidth="1.5" />
+  <path d="M311 195 L315 200 L319 195" fill="none" stroke="#0353e9" strokeOpacity="0.9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  <rect x="10" y="206" width="190" height="54" rx="10" fill="currentColor" fillOpacity="0.04" stroke="currentColor" strokeOpacity="0.28" strokeWidth="1.5" />
+  <text x="105" y="237" textAnchor="middle" fontSize="13" fill="currentColor">Pick a threshold</text>
+  <rect x="220" y="206" width="190" height="54" rx="10" fill="#0353e9" fillOpacity="0.07" stroke="#0353e9" strokeOpacity="1" strokeWidth="1.5" />
+  <text x="315" y="237" textAnchor="middle" fontSize="13" fill="currentColor">Measure latent distance</text>
+  <path d="M105 266 L105 280" stroke="currentColor" strokeOpacity="0.3" strokeWidth="1.5" />
+  <path d="M101 275 L105 280 L109 275" fill="none" stroke="currentColor" strokeOpacity="0.3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  <path d="M315 266 L315 280" stroke="#0353e9" strokeOpacity="0.9" strokeWidth="1.5" />
+  <path d="M311 275 L315 280 L319 275" fill="none" stroke="#0353e9" strokeOpacity="0.9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  <rect x="10" y="286" width="190" height="54" rx="10" fill="currentColor" fillOpacity="0.04" stroke="currentColor" strokeOpacity="0.28" strokeWidth="1.5" />
+  <text x="105" y="317" textAnchor="middle" fontSize="13" fill="currentColor">One yes / no answer</text>
+  <rect x="220" y="286" width="190" height="54" rx="10" fill="#0353e9" fillOpacity="0.07" stroke="#0353e9" strokeOpacity="1" strokeWidth="1.5" />
+  <text x="315" y="317" textAnchor="middle" fontSize="13" fill="currentColor">Every outlier, ranked</text>
+</svg>
+</figure>
 
-Historically, finding a hypervelocity star meant writing complex queries to download raw tabular data, applying manual physics formulas, and setting arbitrary thresholds.
+### The Traditional Path
 
-```python
-# Traditional: query + manual math
-from astroquery.gaia import Gaia
-import numpy as np
+Historically, finding a hypervelocity star was a manual pipeline. A researcher writes a query against the Gaia archive, waits for millions of rows to download, then converts parallax into distance and proper motion into tangential velocity using the formulas above. Finally, they pick a cutoff, commonly 600 km/s, and flag anything faster.
 
-# 1. Fetch raw rows via ADQL (slow)
-q = """
- SELECT parallax, pmra, pmdec
- FROM gaiadr3.gaia_source
- WHERE source_id = 38655544960
-"""
-star = Gaia.launch_job(q).get_results()
+It works, but it is brittle in three ways. Every physical property has to be recomputed by hand for each new question. Every threshold is an arbitrary human guess rather than something the data itself suggests. And most importantly, the pipeline can only ever surface the one specific kind of anomaly its author already thought to look for.
 
-# 2. Manual physics
-d_pc = 1000 / star['parallax'][0]
-pm = np.hypot(star['pmra'][0],
-              star['pmdec'][0])
-v_tan = 4.74 * pm * d_pc / 1000
+### The SADIM Path
 
-# 3. Manual thresholding
-if v_tan > 600:
-    print("Hypervelocity!")
-else:
-    print("Normal star")
-```
+With SADIM-77M, the star is encoded into its 512-dimensional fingerprint and the model reports how far that fingerprint sits from the cosmic norm. There are no manual formulas and no hand-tuned cutoffs, because the notion of "strange" is learned from 170 million stars rather than declared in advance.
 
-This approach works, but it is brittle. Every physical property has to be recomputed by hand, every threshold is an arbitrary human guess, and the whole pipeline only detects the specific anomaly you already thought to look for.
+That single representation is the whole point. Distance in latent space is a *learned* measure of unusualness, so the same encoding supports anomaly ranking, nearest-neighbour searches for stellar streams, and property prediction for incomplete records, all without writing a new pipeline for each.
 
-### 2. The SADIM Way (Learned Representation)
-
-With SADIM-77M, the star is encoded into its latent fingerprint and the model reports how far that fingerprint sits from the cosmic norm. No manual formulas, no hand-tuned cutoffs.
-
-```python
-# SADIM: streaming + learned vectors
-from datasets import load_dataset
-from transformers import AutoModel
-
-# 1. Stream it (no full download)
-ds = load_dataset(
-    "samfatnassi/gaia-dr3",
-    split="train",
-    streaming=True)
-
-# 2. Load the foundation model
-model = AutoModel.from_pretrained(
-    "KilmaAI/Sadim-77M")
-
-# 3. Encode into a fingerprint
-star = next(iter(ds))
-z = model.encode(star)  # 512-dim
-
-print(star["source_id"], z.shape)
-```
-
-The 512-dimensional vector `z` is the whole point. Distance in that space is a *learned* measure of strangeness, so the same single representation supports anomaly ranking, nearest-neighbour searches for stellar streams, and property prediction for incomplete records.
-
-### 3. Side by Side
+### Side by Side
 
 | | Traditional | SADIM-77M |
 | --- | --- | --- |
@@ -162,7 +149,7 @@ The 512-dimensional vector `z` is the whole point. Distance in that space is a *
 | **Output** | Boolean flag | 512-dim vector |
 | **Scale** | Thousands | 170 million |
 
-The difference is not just convenience. The traditional script can only ever find what its author anticipated. The learned representation surfaces phenomena nobody wrote a rule for.
+The difference is not just convenience. The traditional script can only find what its author anticipated. The learned representation surfaces phenomena nobody wrote a rule for.
 
 ## Autonomous Discovery: The Extreme Anomalies Catalog
 
