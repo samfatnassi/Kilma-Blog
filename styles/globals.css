@@ -26,4 +26,39 @@
   body {
     font-family: var(--font-secondary);
   }
+
+  /* Keep long content (math, code, tables, URLs) inside the viewport on mobile */
+  .prose {
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+
+  .prose :where(pre, table) {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  /* KaTeX: scroll wide equations instead of stretching the page */
+  .katex-display {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-block: 0.35rem;
+  }
+
+  .katex-display > .katex {
+    max-width: none;
+    text-align: center;
+  }
+
+  .katex {
+    font-size: 1em;
+  }
+
+  @media (max-width: 640px) {
+    .katex-display > .katex {
+      font-size: 0.85em;
+    }
+  }
 }
+

@@ -36,7 +36,11 @@ $$
 - **x, y, z** — 3D Heliocentric Cartesian mapping, providing the star's position relative to our Sun:
 
 $$
-x = d\cos b\cos l,\qquad y = d\cos b\sin l,\qquad z = d\sin b
+\begin{aligned}
+x &= d\cos b\cos l \\
+y &= d\cos b\sin l \\
+z &= d\sin b
+\end{aligned}
 $$
 
 - **abs_m** — Absolute Magnitude, which indicates the intrinsic, true brightness of the star:
@@ -60,13 +64,19 @@ Processing 170 million stars using traditional tabular database queries is both 
 SADIM (Stellar Intelligence Framework) utilizes a **Variational Autoencoder (VAE)** architecture equipped with **77 million parameters**. Instead of querying a traditional database, SADIM converts raw stellar metadata into a High-Dimensional Neural Vector Space. Every single celestial object is encoded into a **512-dimensional latent vector**:
 
 $$
-z \in \mathbb{R}^{512},\qquad z \sim q_\phi(z \mid x) = \mathcal{N}\!\left(\mu_\phi(x),\ \sigma^2_\phi(x)\right)
+\begin{aligned}
+z &\in \mathbb{R}^{512} \\
+z &\sim q_\phi(z \mid x) = \mathcal{N}\!\left(\mu_\phi(x),\ \sigma^2_\phi(x)\right)
+\end{aligned}
 $$
 
 This vector acts as a unique *"Digital Fingerprint"* for the star, encapsulating its statistical essence. The model is trained by minimizing the standard variational objective — a reconstruction term plus a divergence term that regularizes the latent space:
 
 $$
-\mathcal{L} = \underbrace{\mathbb{E}_{q_\phi(z\mid x)}\!\left[\lVert x - \hat{x}\rVert^2\right]}_{\text{reconstruction}} + \underbrace{D_{\mathrm{KL}}\!\left(q_\phi(z\mid x)\,\Vert\,p(z)\right)}_{\text{regularization}}
+\begin{aligned}
+\mathcal{L} = \;& \underbrace{\mathbb{E}_{q_\phi(z\mid x)}\!\left[\lVert x - \hat{x}\rVert^2\right]}_{\text{reconstruction}} \\[4pt]
++\;& \underbrace{D_{\mathrm{KL}}\!\left(q_\phi(z\mid x)\,\Vert\,p(z)\right)}_{\text{regularization}}
+\end{aligned}
 $$
 
 By mapping stars in this high-dimensional space, the model achieves several core objectives:
@@ -91,7 +101,9 @@ Using the AI engine, we scanned the galaxy and extracted the **SADIM Extreme Ano
 
 $$
 \mathrm{MSE} = \frac{1}{n}\sum_{i=1}^{n}\left(x_i - \hat{x}_i\right)^2
-\qquad\qquad
+$$
+
+$$
 D_{\mathrm{KL}}(q \Vert p) = \sum_{i} q(i)\,\log\frac{q(i)}{p(i)}
 $$
 
@@ -111,7 +123,7 @@ The dashboard provides a blend of physical calculations and AI metrics:
 - **VEL_KMS (TAN) & RADIAL_VEL** — Tangential and radial speeds in $\mathrm{km\,s^{-1}}$. The tangential velocity follows
 
 $$
-v_{\mathrm{tan}} = 4.74\;\mu\,[\mathrm{mas\ yr^{-1}}]\;\times\;d\,[\mathrm{kpc}]
+v_{\mathrm{tan}} = 4.74\,\mu\,[\mathrm{mas/yr}] \times d\,[\mathrm{kpc}]
 $$
 
   Values exceeding $600\ \mathrm{km\,s^{-1}}$ may trigger a hypervelocity alert.
