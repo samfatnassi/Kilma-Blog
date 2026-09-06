@@ -26,55 +26,71 @@
   body {
     font-family: var(--font-secondary);
   }
-
-  /* Keep long content (math, code, tables, URLs) inside the viewport on mobile */
-  .prose {
-    max-width: 100%;
-    overflow-wrap: break-word;
-  }
-
-  .prose :where(pre, table) {
-    max-width: 100%;
-    overflow-x: auto;
-  }
-
-  /* KaTeX: scroll wide equations instead of stretching the page */
-  .katex-display {
-    max-width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-block: 0.35rem;
-  }
-
-  .katex-display > .katex {
-    max-width: none;
-    text-align: center;
-  }
-
-  .katex {
-    font-size: 1em;
-  }
-
-  @media (max-width: 640px) {
-    .katex-display > .katex {
-      font-size: 0.85em;
-    }
-
-    .prose :where(pre) {
-      font-size: 0.66rem;
-      line-height: 1.6;
-      padding: 0.85rem 0.7rem;
-    }
-
-    .prose :where(table) {
-      font-size: 0.8rem;
-      display: block;
-      width: 100%;
-    }
-
-    .prose :where(th, td) {
-      padding: 0.4rem 0.55rem;
-    }
-  }
 }
 
+/* ---------------------------------------------------------------
+   Overrides for long content on small screens.
+   Two notes on why these are written the way they are:
+   1. They sit OUTSIDE @layer base, or Tailwind's layered rules win.
+   2. The doubled `.prose.prose` is deliberate: @tailwindcss/typography
+      emits `.prose :where(pre):not([class~=not-prose])`, which has
+      higher specificity than a plain `.prose pre`. Doubling the class
+      outranks it without resorting to !important.
+   --------------------------------------------------------------- */
+
+.prose {
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+.prose.prose :where(pre, table) {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* KaTeX: contain wide equations instead of stretching the page */
+.katex-display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: 0.35rem;
+}
+
+.katex-display > .katex {
+  max-width: none;
+  text-align: center;
+}
+
+.katex {
+  font-size: 1em;
+}
+
+@media (max-width: 640px) {
+  .katex-display > .katex {
+    font-size: 0.85em;
+  }
+
+  /* Wrap code instead of scrolling it, so nothing is cut off */
+  .prose.prose :where(pre) {
+    font-size: 0.7rem;
+    line-height: 1.6;
+    padding: 0.85rem 0.75rem;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  .prose.prose :where(pre code) {
+    white-space: inherit;
+  }
+
+  .prose.prose :where(table) {
+    font-size: 0.78rem;
+    display: block;
+    width: 100%;
+  }
+
+  .prose.prose :where(th, td) {
+    padding: 0.4rem 0.5rem;
+  }
+}
